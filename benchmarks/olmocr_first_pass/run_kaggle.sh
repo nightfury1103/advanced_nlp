@@ -134,6 +134,17 @@ for index in range(torch.cuda.device_count()):
     print(index, torch.cuda.get_device_name(index), torch.cuda.get_device_capability(index))
 PY
 
+log "Running cheap vLLM/Triton linker preflight"
+HF_HOME="$hf_home" \
+OLMOCR_BIN="$olmocr_bin" \
+OLMOCR_PYTHON="$python_bin" \
+OLMOCR_LAUNCHER="benchmarks/olmocr_first_pass/olmocr_launcher.py" \
+OLMOCR_MODEL="$model" \
+OLMOCR_TP_SIZE="$tp_size" \
+OLMOCR_RUN_ID="${run_id}-preflight" \
+OLMOCR_PREFLIGHT_ONLY=1 \
+  bash benchmarks/olmocr_first_pass/run_olmocr_gpu.sh
+
 log "Pre-downloading model outside benchmark timing"
 mkdir -p "$hf_home"
 HF_HOME="$hf_home" "$python_bin" - <<PY

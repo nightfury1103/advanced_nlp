@@ -11,6 +11,12 @@ class RunKaggleConfigTest(unittest.TestCase):
         self.assertIn('elif [[ -d /kaggle/working ]]', SCRIPT)
         self.assertIn('working_root="$repo_root"', SCRIPT)
 
+    def test_runs_preflight_before_downloading_model(self):
+        preflight_index = SCRIPT.index("Running cheap vLLM/Triton linker preflight")
+        download_index = SCRIPT.index("Pre-downloading model outside benchmark timing")
+        self.assertLess(preflight_index, download_index)
+        self.assertIn('OLMOCR_PREFLIGHT_ONLY=1', SCRIPT)
+
 
 if __name__ == "__main__":
     unittest.main()

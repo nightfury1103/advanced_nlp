@@ -7,6 +7,7 @@ launcher="${OLMOCR_LAUNCHER:-benchmarks/olmocr_first_pass/olmocr_launcher.py}"
 model="${OLMOCR_MODEL:-allenai/olmOCR-2-7B-1025-FP8}"
 tp_size="${OLMOCR_TP_SIZE:-1}"
 run_id="${OLMOCR_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
+preflight_only="${OLMOCR_PREFLIGHT_ONLY:-0}"
 run_root="benchmarks/olmocr_first_pass/output/runs/${run_id}"
 workspace="${run_root}/workspace"
 timing="${run_root}/olmocr_timing.txt"
@@ -29,15 +30,36 @@ if ! command -v vllm >/dev/null 2>&1; then
   exit 1
 fi
 
-if ! ldconfig -p 2>/dev/null | grep -q 'libcuda\.so '; then
-  libcuda_path="$(ldconfig -p 2>/dev/null | awk '/libcuda\.so\.1 / {print $NF; exit}')"
+cuda_link_dir="${run_root}/cuda-link"
+mkdir -p "$cuda_link_dir"
+ldconfig_output=""
+if command -v ldconfig >/dev/null 2>&1; then
+  ldconfig_output="$(ldconfig -p 2>/dev/null || true)"
+fi
+
+if ! grep -q 'libcuda\.so ' <<<"$ldconfig_output"; then
+  libcuda_path="$(awk '/libcuda\.so\.1 / {print $NF; exit}' <<<"$ldconfig_output")"
   if [[ -n "${libcuda_path:-}" && -e "$libcuda_path" ]]; then
-    cuda_link_dir="${run_root}/cuda-link"
-    mkdir -p "$cuda_link_dir"
     ln -sf "$libcuda_path" "${cuda_link_dir}/libcuda.so"
     export LIBRARY_PATH="${cuda_link_dir}${LIBRARY_PATH:+:${LIBRARY_PATH}}"
     export LD_LIBRARY_PATH="${cuda_link_dir}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
   fi
+fi
+
+cat > "${cuda_link_dir}/cuda_link_check.c" <<'EOF'
+int main(void) {
+  return 0;
+}
+EOF
+
+if ! gcc "${cuda_link_dir}/cuda_link_check.c" -shared -fPIC -o "${cuda_link_dir}/cuda_link_check.so" -L"$cuda_link_dir" -lcuda; then
+  printf 'ERROR: gcc cannot link against libcuda. Check that libcuda.so.1 exists and libcuda.so is available through LIBRARY_PATH.\n' >&2
+  exit 1
+fi
+
+if [[ "$preflight_only" == "1" ]]; then
+  printf 'olmOCR GPU preflight complete: vllm and libcuda linker checks passed.\n'
+  exit 0
 fi
 
 if [[ -f "$launcher" ]]; then

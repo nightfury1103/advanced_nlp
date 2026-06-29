@@ -17,6 +17,12 @@ class RunOlmocrGpuConfigTest(unittest.TestCase):
         self.assertIn('export LIBRARY_PATH="${cuda_link_dir}', SCRIPT)
         self.assertIn('export LD_LIBRARY_PATH="${cuda_link_dir}', SCRIPT)
 
+    def test_has_cheap_preflight_mode_before_model_run(self):
+        self.assertIn('preflight_only="${OLMOCR_PREFLIGHT_ONLY:-0}"', SCRIPT)
+        self.assertIn('gcc "${cuda_link_dir}/cuda_link_check.c"', SCRIPT)
+        self.assertIn('if [[ "$preflight_only" == "1" ]]', SCRIPT)
+        self.assertIn("olmOCR GPU preflight complete", SCRIPT)
+
 
 if __name__ == "__main__":
     unittest.main()
