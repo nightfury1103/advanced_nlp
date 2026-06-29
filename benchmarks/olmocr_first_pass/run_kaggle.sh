@@ -10,6 +10,8 @@ run_id="${OLMOCR_RUN_ID:-kaggle-$(date -u +%Y%m%dT%H%M%SZ)}"
 working_root="${KAGGLE_WORKING_ROOT:-/kaggle/working}"
 venv_dir="${OLMOCR_VENV:-${working_root}/olmocr-venv}"
 hf_home="${HF_HOME:-${working_root}/hf-cache}"
+uv_dir="${UV_INSTALL_DIR:-${working_root}/uv-bin}"
+uv_bin="${uv_dir}/uv"
 run_root="benchmarks/olmocr_first_pass/output/runs/${run_id}"
 archive="${working_root}/olmocr-${run_id}.zip"
 
@@ -61,10 +63,10 @@ log "Installing system dependencies"
 if [[ "${KAGGLE_SKIP_APT:-0}" != "1" ]]; then
   if [[ "$(id -u)" -eq 0 ]]; then
     apt-get update -qq
-    apt-get install -y poppler-utils fonts-dejavu-core time zip python3-venv
+    apt-get install -y poppler-utils fonts-dejavu-core time zip curl
   elif command -v sudo >/dev/null 2>&1; then
     sudo apt-get update -qq
-    sudo apt-get install -y poppler-utils fonts-dejavu-core time zip python3-venv
+    sudo apt-get install -y poppler-utils fonts-dejavu-core time zip curl
   else
     fail "Root or sudo access is required to install Poppler."
   fi
@@ -73,13 +75,19 @@ command -v pdftoppm >/dev/null 2>&1 || fail "pdftoppm is not installed."
 command -v /usr/bin/time >/dev/null 2>&1 || fail "/usr/bin/time is not installed."
 
 log "Preparing Python environment"
-if [[ ! -x "${venv_dir}/bin/python" ]]; then
-  python3 -m venv "$venv_dir"
+if [[ ! -x "$uv_bin" ]]; then
+  mkdir -p "$uv_dir"
+  curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$uv_dir" sh
 fi
-"${venv_dir}/bin/pip" install --upgrade pip
+
+if [[ ! -x "${venv_dir}/bin/python" || ! -x "${venv_dir}/bin/pip" ]]; then
+  UV_VENV_CLEAR=1 "$uv_bin" venv --python 3.11 --seed "$venv_dir"
+fi
+
+"${venv_dir}/bin/pip" install --no-cache-dir --upgrade pip
 
 if [[ ! -x "${venv_dir}/bin/olmocr" || "${OLMOCR_FORCE_INSTALL:-0}" == "1" ]]; then
-  "${venv_dir}/bin/pip" install "olmocr[gpu]" \
+  "${venv_dir}/bin/pip" install --no-cache-dir "olmocr[gpu]" \
     --extra-index-url https://download.pytorch.org/whl/cu128
 fi
 

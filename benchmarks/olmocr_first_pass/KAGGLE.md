@@ -9,7 +9,7 @@ After cloning the repository and enabling GPU + Internet, run:
   bash benchmarks/olmocr_first_pass/run_kaggle.sh
 ```
 
-The script performs the installation, model pre-download, GPU benchmark, CER scoring, and ZIP packaging described below. The remaining sections explain each step for troubleshooting.
+The script performs the installation, creates a managed Python 3.11 environment with `uv`, pre-downloads the model, runs the GPU benchmark, calculates CER, and packages the results. It also repairs an incomplete virtual environment left by a failed earlier run.
 
 ## 1. Create the Notebook
 
