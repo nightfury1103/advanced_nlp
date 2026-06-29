@@ -168,12 +168,7 @@ The olmOCR benchmark uses the same five pages and records GPU/model/timing metad
 The short version:
 
 ```bash
-export OLMOCR_BIN=/path/to/olmocr
-export OLMOCR_MODEL=allenai/olmOCR-2-7B-1025-FP8
-export OLMOCR_TP_SIZE=1
-export OLMOCR_RUN_ID=kaggle-run-1
-
-bash benchmarks/olmocr_first_pass/run_olmocr_gpu.sh
+bash benchmarks/olmocr_first_pass/run_kaggle.sh
 ```
 
 Each run receives a unique workspace under `benchmarks/olmocr_first_pass/output/runs/`, preventing cached work from corrupting timing measurements.

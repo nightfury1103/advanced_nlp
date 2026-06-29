@@ -26,6 +26,12 @@ pip install "olmocr[gpu]" --extra-index-url https://download.pytorch.org/whl/cu1
 
 See `KAGGLE.md` for the notebook workflow.
 
+After cloning this repository into Kaggle, the complete workflow can be run with one command:
+
+```bash
+bash benchmarks/olmocr_first_pass/run_kaggle.sh
+```
+
 ## GPU Run
 
 Run from the repository root:

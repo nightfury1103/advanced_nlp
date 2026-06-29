@@ -1,5 +1,16 @@
 # Running the olmOCR Benchmark on Kaggle
 
+## One-command Run
+
+After cloning the repository and enabling GPU + Internet, run:
+
+```bash
+!cd /kaggle/working/advanced_nlp && \
+  bash benchmarks/olmocr_first_pass/run_kaggle.sh
+```
+
+The script performs the installation, model pre-download, GPU benchmark, CER scoring, and ZIP packaging described below. The remaining sections explain each step for troubleshooting.
+
 ## 1. Create the Notebook
 
 Enable:
