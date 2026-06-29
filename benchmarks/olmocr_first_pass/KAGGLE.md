@@ -40,6 +40,12 @@ Recommended: L4/A100 or another recent NVIDIA GPU with at least 12GB VRAM. The o
 - T4x2: try `OLMOCR_TP_SIZE=2`.
 - Single T4 or P100: likely to encounter FP8, CUDA, or memory problems; use a remote endpoint if that happens.
 
+On Kaggle T4x2, PyTorch can report slightly less than 15 GiB for GPU 0 even
+though `nvidia-smi` displays 15360 MiB. `olmOCR` performs a single-GPU preflight
+check before starting vLLM, so this repository runs through
+`olmocr_launcher.py`, which bypasses only that preflight for FP8 + dual T4 +
+tensor parallel size 2. It does not hide real vLLM memory failures.
+
 ## 3. Install System Dependencies
 
 Kaggle notebooks normally run as root, so do not use `sudo`:

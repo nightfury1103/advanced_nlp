@@ -2,6 +2,8 @@
 set -euo pipefail
 
 olmocr_bin="${OLMOCR_BIN:-olmocr}"
+python_bin="${OLMOCR_PYTHON:-python3}"
+launcher="${OLMOCR_LAUNCHER:-benchmarks/olmocr_first_pass/olmocr_launcher.py}"
 model="${OLMOCR_MODEL:-allenai/olmOCR-2-7B-1025-FP8}"
 tp_size="${OLMOCR_TP_SIZE:-1}"
 run_id="${OLMOCR_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
@@ -17,8 +19,14 @@ fi
 
 printf '%s\n' "$model" > "${run_root}/model.txt"
 
+if [[ -f "$launcher" ]]; then
+  olmocr_command=("$python_bin" "$launcher")
+else
+  olmocr_command=("$olmocr_bin")
+fi
+
 /usr/bin/time -p -o "$timing" \
-  "$olmocr_bin" "$workspace" \
+  "${olmocr_command[@]}" "$workspace" \
     --model "$model" \
     --markdown \
     --workers 1 \

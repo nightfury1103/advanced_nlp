@@ -138,6 +138,8 @@ PY
 log "Running five-page olmOCR benchmark"
 HF_HOME="$hf_home" \
 OLMOCR_BIN="$olmocr_bin" \
+OLMOCR_PYTHON="$python_bin" \
+OLMOCR_LAUNCHER="benchmarks/olmocr_first_pass/olmocr_launcher.py" \
 OLMOCR_MODEL="$model" \
 OLMOCR_TP_SIZE="$tp_size" \
 OLMOCR_RUN_ID="$run_id" \
