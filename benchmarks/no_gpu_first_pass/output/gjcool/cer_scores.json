@@ -1,0 +1,107 @@
+{
+  "summary": {
+    "scored_pages": 5,
+    "missing_ground_truth_pages": 3,
+    "missing_prediction_pages": 0,
+    "reference_chars": 1100,
+    "prediction_chars": 2672,
+    "edit_distance": 1804,
+    "weighted_cer": 1.64,
+    "aligned_edit_distance": 394,
+    "weighted_aligned_cer": 0.3582,
+    "total_wall_time_seconds": 223.942,
+    "avg_wall_time_seconds": 44.788,
+    "reference_chars_per_second": 4.91,
+    "prediction_chars_per_second": 11.93,
+    "prediction_reference_char_ratio": 2.4291
+  },
+  "pages": [
+    {
+      "page": 5,
+      "status": "missing_ground_truth"
+    },
+    {
+      "page": 20,
+      "status": "missing_ground_truth"
+    },
+    {
+      "page": 44,
+      "status": "scored",
+      "reference_chars": 493,
+      "prediction_chars": 555,
+      "edit_distance": 73,
+      "cer": 0.1481,
+      "aligned_edit_distance": 72,
+      "aligned_cer": 0.146,
+      "wall_time_seconds": 12.972,
+      "ocr_items": 555,
+      "prediction_reference_char_ratio": 1.1258,
+      "reference_chars_per_second": 38.0,
+      "prediction_chars_per_second": 42.78
+    },
+    {
+      "page": 52,
+      "status": "missing_ground_truth"
+    },
+    {
+      "page": 80,
+      "status": "scored",
+      "reference_chars": 140,
+      "prediction_chars": 1406,
+      "edit_distance": 1306,
+      "cer": 9.3286,
+      "aligned_edit_distance": 123,
+      "aligned_cer": 0.8786,
+      "wall_time_seconds": 65.642,
+      "ocr_items": 1290,
+      "prediction_reference_char_ratio": 10.0429,
+      "reference_chars_per_second": 2.13,
+      "prediction_chars_per_second": 21.42
+    },
+    {
+      "page": 160,
+      "status": "scored",
+      "reference_chars": 147,
+      "prediction_chars": 133,
+      "edit_distance": 69,
+      "cer": 0.4694,
+      "aligned_edit_distance": 69,
+      "aligned_cer": 0.4694,
+      "wall_time_seconds": 46.398,
+      "ocr_items": 133,
+      "prediction_reference_char_ratio": 0.9048,
+      "reference_chars_per_second": 3.17,
+      "prediction_chars_per_second": 2.87
+    },
+    {
+      "page": 240,
+      "status": "scored",
+      "reference_chars": 134,
+      "prediction_chars": 407,
+      "edit_distance": 320,
+      "cer": 2.3881,
+      "aligned_edit_distance": 94,
+      "aligned_cer": 0.7015,
+      "wall_time_seconds": 61.494,
+      "ocr_items": 365,
+      "prediction_reference_char_ratio": 3.0373,
+      "reference_chars_per_second": 2.18,
+      "prediction_chars_per_second": 6.62
+    },
+    {
+      "page": 320,
+      "status": "scored",
+      "reference_chars": 186,
+      "prediction_chars": 171,
+      "edit_distance": 36,
+      "cer": 0.1935,
+      "aligned_edit_distance": 36,
+      "aligned_cer": 0.1935,
+      "wall_time_seconds": 37.436,
+      "ocr_items": 171,
+      "prediction_reference_char_ratio": 0.9194,
+      "reference_chars_per_second": 4.97,
+      "prediction_chars_per_second": 4.57
+    }
+  ]
+}

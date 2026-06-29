@@ -1,0 +1,66 @@
+[
+  {
+    "page": 5,
+    "wall_time_seconds": 1.263,
+    "item_count": 9,
+    "text_chars": 139,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_005.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_005.txt"
+  },
+  {
+    "page": 20,
+    "wall_time_seconds": 1.329,
+    "item_count": 24,
+    "text_chars": 168,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_020.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_020.txt"
+  },
+  {
+    "page": 44,
+    "wall_time_seconds": 2.503,
+    "item_count": 11,
+    "text_chars": 387,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_044.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_044.txt"
+  },
+  {
+    "page": 52,
+    "wall_time_seconds": 1.237,
+    "item_count": 22,
+    "text_chars": 157,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_052.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_052.txt"
+  },
+  {
+    "page": 80,
+    "wall_time_seconds": 1.247,
+    "item_count": 11,
+    "text_chars": 127,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_080.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_080.txt"
+  },
+  {
+    "page": 160,
+    "wall_time_seconds": 0.936,
+    "item_count": 7,
+    "text_chars": 102,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_160.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_160.txt"
+  },
+  {
+    "page": 240,
+    "wall_time_seconds": 1.098,
+    "item_count": 10,
+    "text_chars": 121,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_240.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_240.txt"
+  },
+  {
+    "page": 320,
+    "wall_time_seconds": 1.168,
+    "item_count": 11,
+    "text_chars": 161,
+    "json": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_320.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/umi_cpu/page_320.txt"
+  }
+]

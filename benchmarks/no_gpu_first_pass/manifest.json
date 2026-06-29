@@ -1,0 +1,38 @@
+{
+  "source_pdf": "../../sample.pdf",
+  "sample_pages": [5, 20, 44, 52, 80, 160, 240, 320],
+  "input_images": "input_images/page_*.png",
+  "models": [
+    {
+      "name": "KanDianGuJi",
+      "mode": "hosted_api",
+      "requires_local_gpu": false,
+      "status": "credential_blocked",
+      "runner": "run_kandianguji_api.py",
+      "required_environment": ["KANDIANGUJI_TOKEN", "KANDIANGUJI_EMAIL"]
+    },
+    {
+      "name": "GJ.cool",
+      "mode": "hosted_api",
+      "requires_local_gpu": false,
+      "status": "credential_blocked",
+      "runner": "run_gjcool_api.py",
+      "required_environment": ["GJCOOL_BASE_URL", "GJCOOL_ACCESS_TOKEN"]
+    },
+    {
+      "name": "Umi-OCR CPU baseline",
+      "mode": "local_cpu",
+      "requires_local_gpu": false,
+      "status": "completed",
+      "runner": "run_umi_cpu_rapidocr.py",
+      "output": "output/umi_cpu/summary.json"
+    },
+    {
+      "name": "olmOCR",
+      "mode": "gpu_or_remote",
+      "requires_local_gpu": true,
+      "status": "deferred_to_gpu_environment",
+      "runner": "../olmocr_first_pass/README.md"
+    }
+  ]
+}

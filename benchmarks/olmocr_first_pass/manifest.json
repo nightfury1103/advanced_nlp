@@ -1,0 +1,41 @@
+{
+  "source_pdf": "../../sample.pdf",
+  "model": "olmOCR",
+  "reference_type": "ChatGPT-assisted silver reference",
+  "sample_pages": [
+    {
+      "page": 44,
+      "file": "input_pages/page_044.pdf",
+      "reason": "Clean printed vertical Chinese control page"
+    },
+    {
+      "page": 80,
+      "file": "input_pages/page_080.pdf",
+      "reason": "Main grayscale page with vertical old Chinese text"
+    },
+    {
+      "page": 160,
+      "file": "input_pages/page_160.pdf",
+      "reason": "Clear grayscale page with narrow vertical columns"
+    },
+    {
+      "page": 240,
+      "file": "input_pages/page_240.pdf",
+      "reason": "Low-contrast grayscale page with paper texture"
+    },
+    {
+      "page": 320,
+      "file": "input_pages/page_320.pdf",
+      "reason": "Dense late-book page with long vertical columns"
+    }
+  ],
+  "combined_pdf": "olmocr_clean_5_pages.pdf",
+  "metrics": [
+    "strict_weighted_cer",
+    "aligned_weighted_cer",
+    "total_wall_time_seconds",
+    "average_wall_time_seconds_per_page",
+    "prediction_reference_char_ratio",
+    "prediction_chars_per_second"
+  ]
+}

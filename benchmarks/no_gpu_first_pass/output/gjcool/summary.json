@@ -1,0 +1,47 @@
+[
+  {
+    "page": 44,
+    "wall_time_seconds": 12.972,
+    "text_chars": 569,
+    "json": "benchmarks/no_gpu_first_pass/output/gjcool/page_044.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/gjcool/page_044.txt",
+    "item_count": 555,
+    "line_count": 15
+  },
+  {
+    "page": 80,
+    "wall_time_seconds": 65.642,
+    "text_chars": 1466,
+    "json": "benchmarks/no_gpu_first_pass/output/gjcool/page_080.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/gjcool/page_080.txt",
+    "item_count": 1290,
+    "line_count": 120
+  },
+  {
+    "page": 160,
+    "wall_time_seconds": 46.398,
+    "text_chars": 139,
+    "json": "benchmarks/no_gpu_first_pass/output/gjcool/page_160.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/gjcool/page_160.txt",
+    "item_count": 133,
+    "line_count": 7
+  },
+  {
+    "page": 240,
+    "wall_time_seconds": 61.494,
+    "text_chars": 430,
+    "json": "benchmarks/no_gpu_first_pass/output/gjcool/page_240.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/gjcool/page_240.txt",
+    "item_count": 365,
+    "line_count": 44
+  },
+  {
+    "page": 320,
+    "wall_time_seconds": 37.436,
+    "text_chars": 179,
+    "json": "benchmarks/no_gpu_first_pass/output/gjcool/page_320.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/gjcool/page_320.txt",
+    "item_count": 171,
+    "line_count": 9
+  }
+]
