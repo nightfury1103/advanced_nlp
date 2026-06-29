@@ -6,6 +6,11 @@ SCRIPT = Path(__file__).with_name("run_olmocr_gpu.sh").read_text()
 
 
 class RunOlmocrGpuConfigTest(unittest.TestCase):
+    def test_defaults_to_local_venv_when_available(self):
+        self.assertIn('if [[ -z "${OLMOCR_BIN:-}" && -x "olmocr-venv/bin/olmocr" ]]', SCRIPT)
+        self.assertIn('olmocr_bin="olmocr-venv/bin/olmocr"', SCRIPT)
+        self.assertIn('python_bin="olmocr-venv/bin/python"', SCRIPT)
+
     def test_validates_explicit_executable_paths_before_cd(self):
         self.assertIn("resolve_executable()", SCRIPT)
         self.assertIn('does not exist or is not executable', SCRIPT)

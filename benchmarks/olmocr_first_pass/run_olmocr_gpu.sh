@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-olmocr_bin="${OLMOCR_BIN:-olmocr}"
-python_bin="${OLMOCR_PYTHON:-python3}"
+if [[ -z "${OLMOCR_BIN:-}" && -x "olmocr-venv/bin/olmocr" ]]; then
+  olmocr_bin="olmocr-venv/bin/olmocr"
+else
+  olmocr_bin="${OLMOCR_BIN:-olmocr}"
+fi
+
+if [[ -z "${OLMOCR_PYTHON:-}" && -x "olmocr-venv/bin/python" ]]; then
+  python_bin="olmocr-venv/bin/python"
+else
+  python_bin="${OLMOCR_PYTHON:-python3}"
+fi
 launcher="${OLMOCR_LAUNCHER:-benchmarks/olmocr_first_pass/olmocr_launcher.py}"
 model="${OLMOCR_MODEL:-allenai/olmOCR-2-7B-1025-FP8}"
 tp_size="${OLMOCR_TP_SIZE:-1}"

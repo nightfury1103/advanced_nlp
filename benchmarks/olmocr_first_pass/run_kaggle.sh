@@ -74,10 +74,12 @@ log "Installing system dependencies"
 if [[ "${KAGGLE_SKIP_APT:-0}" != "1" ]]; then
   if [[ "$(id -u)" -eq 0 ]]; then
     apt-get update -qq
-    apt-get install -y poppler-utils fonts-dejavu-core time zip curl
+    apt-get install -y poppler-utils fonts-dejavu-core time zip curl build-essential python3-dev
+    apt-get install -y python3.11-dev || true
   elif command -v sudo >/dev/null 2>&1; then
     sudo apt-get update -qq
-    sudo apt-get install -y poppler-utils fonts-dejavu-core time zip curl
+    sudo apt-get install -y poppler-utils fonts-dejavu-core time zip curl build-essential python3-dev
+    sudo apt-get install -y python3.11-dev || true
   else
     fail "Root or sudo access is required to install Poppler."
   fi

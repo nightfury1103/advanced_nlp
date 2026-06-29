@@ -17,6 +17,11 @@ class RunKaggleConfigTest(unittest.TestCase):
         self.assertLess(preflight_index, download_index)
         self.assertIn('OLMOCR_PREFLIGHT_ONLY=1', SCRIPT)
 
+    def test_installs_build_tools_and_python_headers_for_triton(self):
+        self.assertIn("build-essential", SCRIPT)
+        self.assertIn("python3-dev", SCRIPT)
+        self.assertIn("python3.11-dev", SCRIPT)
+
 
 if __name__ == "__main__":
     unittest.main()
