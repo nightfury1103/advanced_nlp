@@ -56,7 +56,11 @@ available_kb="$(df -Pk "$working_root" | awk 'NR==2 {print $4}')"
 available_gb="$((available_kb / 1024 / 1024))"
 printf 'Free disk: %s GB\n' "$available_gb"
 if [[ "$available_gb" -lt 30 ]]; then
-  printf 'WARNING: olmOCR officially recommends roughly 30GB free disk space.\n' >&2
+  low_disk_mode=1
+  printf 'WARNING: only %sGB is free; enabling low-disk mode.\n' "$available_gb" >&2
+  printf 'Low-disk mode reuses the Kaggle Python environment instead of duplicating GPU packages in a venv.\n' >&2
+else
+  low_disk_mode=0
 fi
 
 log "Installing system dependencies"
@@ -74,25 +78,44 @@ fi
 command -v pdftoppm >/dev/null 2>&1 || fail "pdftoppm is not installed."
 command -v /usr/bin/time >/dev/null 2>&1 || fail "/usr/bin/time is not installed."
 
+apt-get clean 2>/dev/null || true
+python3 -m pip cache purge >/dev/null 2>&1 || true
+
 log "Preparing Python environment"
-if [[ ! -x "$uv_bin" ]]; then
-  mkdir -p "$uv_dir"
-  curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$uv_dir" sh
-fi
-
-if [[ ! -x "${venv_dir}/bin/python" || ! -x "${venv_dir}/bin/pip" ]]; then
-  UV_VENV_CLEAR=1 "$uv_bin" venv --python 3.11 --seed "$venv_dir"
-fi
-
-"${venv_dir}/bin/pip" install --no-cache-dir --upgrade pip
-
-if [[ ! -x "${venv_dir}/bin/olmocr" || "${OLMOCR_FORCE_INSTALL:-0}" == "1" ]]; then
-  "${venv_dir}/bin/pip" install --no-cache-dir "olmocr[gpu]" \
+if [[ "$low_disk_mode" == "1" ]]; then
+  if [[ -d "$venv_dir" ]]; then
+    log "Removing incomplete dedicated venv to recover disk space"
+    rm -rf "$venv_dir"
+  fi
+  python_bin="$(command -v python3)"
+  PIP_NO_CACHE_DIR=1 "$python_bin" -m pip install --upgrade pip
+  PIP_NO_CACHE_DIR=1 "$python_bin" -m pip install "olmocr[gpu]" \
     --extra-index-url https://download.pytorch.org/whl/cu128
+  python_scripts_dir="$("$python_bin" -c 'import sysconfig; print(sysconfig.get_path("scripts"))')"
+  olmocr_bin="${python_scripts_dir}/olmocr"
+else
+  if [[ ! -x "$uv_bin" ]]; then
+    mkdir -p "$uv_dir"
+    curl -LsSf https://astral.sh/uv/install.sh | env UV_UNMANAGED_INSTALL="$uv_dir" sh
+  fi
+
+  if [[ ! -x "${venv_dir}/bin/python" || ! -x "${venv_dir}/bin/pip" ]]; then
+    UV_VENV_CLEAR=1 "$uv_bin" venv --python 3.11 --seed "$venv_dir"
+  fi
+
+  "${venv_dir}/bin/pip" install --no-cache-dir --upgrade pip
+  if [[ ! -x "${venv_dir}/bin/olmocr" || "${OLMOCR_FORCE_INSTALL:-0}" == "1" ]]; then
+    "${venv_dir}/bin/pip" install --no-cache-dir "olmocr[gpu]" \
+      --extra-index-url https://download.pytorch.org/whl/cu128
+  fi
+  python_bin="${venv_dir}/bin/python"
+  olmocr_bin="${venv_dir}/bin/olmocr"
 fi
+
+[[ -x "$olmocr_bin" ]] || fail "olmocr executable was not installed: $olmocr_bin"
 
 log "Verifying CUDA runtime"
-"${venv_dir}/bin/python" - <<'PY'
+"$python_bin" - <<'PY'
 import torch
 
 print("PyTorch:", torch.__version__)
@@ -106,7 +129,7 @@ PY
 
 log "Pre-downloading model outside benchmark timing"
 mkdir -p "$hf_home"
-HF_HOME="$hf_home" "${venv_dir}/bin/python" - <<PY
+HF_HOME="$hf_home" "$python_bin" - <<PY
 from huggingface_hub import snapshot_download
 
 snapshot_download("${model}")
@@ -114,7 +137,7 @@ PY
 
 log "Running five-page olmOCR benchmark"
 HF_HOME="$hf_home" \
-OLMOCR_BIN="${venv_dir}/bin/olmocr" \
+OLMOCR_BIN="$olmocr_bin" \
 OLMOCR_MODEL="$model" \
 OLMOCR_TP_SIZE="$tp_size" \
 OLMOCR_RUN_ID="$run_id" \

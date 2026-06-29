@@ -9,7 +9,9 @@ After cloning the repository and enabling GPU + Internet, run:
   bash benchmarks/olmocr_first_pass/run_kaggle.sh
 ```
 
-The script performs the installation, creates a managed Python 3.11 environment with `uv`, pre-downloads the model, runs the GPU benchmark, calculates CER, and packages the results. It also repairs an incomplete virtual environment left by a failed earlier run.
+The script performs the installation, pre-downloads the model, runs the GPU benchmark, calculates CER, and packages the results. With at least 30GB free, it creates a managed Python 3.11 environment with `uv`; otherwise it uses the low-disk behavior below.
+
+If Kaggle reports less than 30GB free disk, the script automatically enters low-disk mode. It removes its incomplete dedicated venv and installs into Kaggle's existing Python environment with package caching disabled. This is less isolated, but avoids duplicating PyTorch and CUDA packages.
 
 ## 1. Create the Notebook
 
