@@ -29,6 +29,17 @@ if ! command -v vllm >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! ldconfig -p 2>/dev/null | grep -q 'libcuda\.so '; then
+  libcuda_path="$(ldconfig -p 2>/dev/null | awk '/libcuda\.so\.1 / {print $NF; exit}')"
+  if [[ -n "${libcuda_path:-}" && -e "$libcuda_path" ]]; then
+    cuda_link_dir="${run_root}/cuda-link"
+    mkdir -p "$cuda_link_dir"
+    ln -sf "$libcuda_path" "${cuda_link_dir}/libcuda.so"
+    export LIBRARY_PATH="${cuda_link_dir}${LIBRARY_PATH:+:${LIBRARY_PATH}}"
+    export LD_LIBRARY_PATH="${cuda_link_dir}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+  fi
+fi
+
 if [[ -f "$launcher" ]]; then
   olmocr_command=("$python_bin" "$launcher")
 else
