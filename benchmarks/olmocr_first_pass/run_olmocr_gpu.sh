@@ -47,12 +47,23 @@ if ! grep -q 'libcuda\.so ' <<<"$ldconfig_output"; then
 fi
 
 cat > "${cuda_link_dir}/cuda_link_check.c" <<'EOF'
-int main(void) {
-  return 0;
+#include <Python.h>
+
+static struct PyModuleDef cuda_link_check_module = {
+  PyModuleDef_HEAD_INIT,
+  "cuda_link_check",
+  NULL,
+  -1,
+  NULL
+};
+
+PyMODINIT_FUNC PyInit_cuda_link_check(void) {
+  return PyModule_Create(&cuda_link_check_module);
 }
 EOF
 
-if ! gcc "${cuda_link_dir}/cuda_link_check.c" -shared -fPIC -o "${cuda_link_dir}/cuda_link_check.so" -L"$cuda_link_dir" -lcuda; then
+python_include="$("$python_bin" -c 'import sysconfig; print(sysconfig.get_path("include") or "")')"
+if ! gcc "${cuda_link_dir}/cuda_link_check.c" -O3 -shared -fPIC -Wno-psabi -o "${cuda_link_dir}/cuda_link_check.so" -L"$cuda_link_dir" ${python_include:+-I"$python_include"} -lcuda; then
   printf 'ERROR: gcc cannot link against libcuda. Check that libcuda.so.1 exists and libcuda.so is available through LIBRARY_PATH.\n' >&2
   exit 1
 fi

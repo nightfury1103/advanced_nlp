@@ -19,6 +19,8 @@ class RunOlmocrGpuConfigTest(unittest.TestCase):
 
     def test_has_cheap_preflight_mode_before_model_run(self):
         self.assertIn('preflight_only="${OLMOCR_PREFLIGHT_ONLY:-0}"', SCRIPT)
+        self.assertIn("python_include=", SCRIPT)
+        self.assertIn("#include <Python.h>", SCRIPT)
         self.assertIn('gcc "${cuda_link_dir}/cuda_link_check.c"', SCRIPT)
         self.assertIn('if [[ "$preflight_only" == "1" ]]', SCRIPT)
         self.assertIn("olmOCR GPU preflight complete", SCRIPT)
