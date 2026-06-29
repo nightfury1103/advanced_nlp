@@ -13,6 +13,31 @@ The script performs the installation, pre-downloads the model, runs the GPU benc
 
 The script uses `KAGGLE_WORKING_ROOT` when you set it. Otherwise it uses `/kaggle/working` if that directory exists; outside standard Kaggle sessions it falls back to the repository directory. If Kaggle reports less than 30GB free disk, the script automatically enters low-disk mode. It removes its incomplete dedicated venv and installs into Kaggle's existing Python environment with package caching disabled. This is less isolated, but avoids duplicating PyTorch and CUDA packages.
 
+## Modal L4 Notes
+
+On Modal notebooks with L4, start with the one-command runner instead of calling
+`run_olmocr_gpu.sh` directly. The direct GPU runner expects `olmocr[gpu]` and
+`vllm` to already exist. In a fresh Modal session, the venv may not exist yet.
+
+```bash
+%cd /root/advanced_nlp
+!git pull origin main
+!pkill -f "olmocr|vllm" || true
+!KAGGLE_SKIP_APT=1 OLMOCR_TP_SIZE=1 OLMOCR_RUN_ID=modal-l4-1 bash benchmarks/olmocr_first_pass/run_kaggle.sh
+```
+
+If you only want the cheap preflight after the venv has been created, avoid
+hardcoding `/root/advanced_nlp/olmocr-venv` unless that directory exists:
+
+```bash
+!OLMOCR_BIN="$PWD/olmocr-venv/bin/olmocr" \
+  OLMOCR_PYTHON="$PWD/olmocr-venv/bin/python" \
+  OLMOCR_TP_SIZE=1 \
+  OLMOCR_RUN_ID=modal-l4-preflight-only \
+  OLMOCR_PREFLIGHT_ONLY=1 \
+  bash benchmarks/olmocr_first_pass/run_olmocr_gpu.sh
+```
+
 ## 1. Create the Notebook
 
 Enable:

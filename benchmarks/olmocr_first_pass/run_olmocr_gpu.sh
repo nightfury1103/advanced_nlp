@@ -14,6 +14,30 @@ timing="${run_root}/olmocr_timing.txt"
 
 mkdir -p "$workspace"
 
+fail() {
+  printf 'ERROR: %s\n' "$*" >&2
+  exit 1
+}
+
+resolve_executable() {
+  local label="$1"
+  local executable="$2"
+
+  if [[ "$executable" == */* ]]; then
+    if [[ ! -x "$executable" ]]; then
+      fail "${label} does not exist or is not executable: ${executable}. If this is a fresh Modal session, run run_kaggle.sh first so the venv is created, or set ${label} to the correct executable path."
+    fi
+    printf '%s\n' "$executable"
+    return
+  fi
+
+  command -v "$executable" >/dev/null 2>&1 || fail "${label} executable not found in PATH: ${executable}"
+  command -v "$executable"
+}
+
+olmocr_bin="$(resolve_executable OLMOCR_BIN "$olmocr_bin")"
+python_bin="$(resolve_executable OLMOCR_PYTHON "$python_bin")"
+
 if command -v nvidia-smi >/dev/null 2>&1; then
   nvidia-smi > "${run_root}/gpu_info.txt"
 fi
