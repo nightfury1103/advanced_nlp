@@ -7,13 +7,20 @@ cd "$repo_root"
 
 model="${OLMOCR_MODEL:-allenai/olmOCR-2-7B-1025-FP8}"
 run_id="${OLMOCR_RUN_ID:-kaggle-$(date -u +%Y%m%dT%H%M%SZ)}"
-working_root="${KAGGLE_WORKING_ROOT:-/kaggle/working}"
+if [[ -n "${KAGGLE_WORKING_ROOT:-}" ]]; then
+  working_root="$KAGGLE_WORKING_ROOT"
+elif [[ -d /kaggle/working ]]; then
+  working_root="/kaggle/working"
+else
+  working_root="$repo_root"
+fi
 venv_dir="${OLMOCR_VENV:-${working_root}/olmocr-venv}"
 hf_home="${HF_HOME:-${working_root}/hf-cache}"
 uv_dir="${UV_INSTALL_DIR:-${working_root}/uv-bin}"
 uv_bin="${uv_dir}/uv"
 run_root="benchmarks/olmocr_first_pass/output/runs/${run_id}"
 archive="${working_root}/olmocr-${run_id}.zip"
+mkdir -p "$working_root"
 
 log() {
   printf '\n==> %s\n' "$*"

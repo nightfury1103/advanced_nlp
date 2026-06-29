@@ -5,13 +5,13 @@
 After cloning the repository and enabling GPU + Internet, run:
 
 ```bash
-!cd /kaggle/working/advanced_nlp && \
-  bash benchmarks/olmocr_first_pass/run_kaggle.sh
+%cd advanced_nlp
+!bash benchmarks/olmocr_first_pass/run_kaggle.sh
 ```
 
 The script performs the installation, pre-downloads the model, runs the GPU benchmark, calculates CER, and packages the results. With at least 30GB free, it creates a managed Python 3.11 environment with `uv`; otherwise it uses the low-disk behavior below.
 
-If Kaggle reports less than 30GB free disk, the script automatically enters low-disk mode. It removes its incomplete dedicated venv and installs into Kaggle's existing Python environment with package caching disabled. This is less isolated, but avoids duplicating PyTorch and CUDA packages.
+The script uses `KAGGLE_WORKING_ROOT` when you set it. Otherwise it uses `/kaggle/working` if that directory exists; outside standard Kaggle sessions it falls back to the repository directory. If Kaggle reports less than 30GB free disk, the script automatically enters low-disk mode. It removes its incomplete dedicated venv and installs into Kaggle's existing Python environment with package caching disabled. This is less isolated, but avoids duplicating PyTorch and CUDA packages.
 
 ## 1. Create the Notebook
 
@@ -21,17 +21,17 @@ Enable:
 - Internet: On
 - Persistence: optional, but useful because the model download is large
 
-Copy or upload this repository into writable storage under `/kaggle/working`. Do not run from `/kaggle/input`, which is read-only.
+Copy or upload this repository into any writable directory. Do not run from `/kaggle/input`, which is read-only.
 
 ```python
-%cd /kaggle/working/XLNNTN
+%cd advanced_nlp
 ```
 
 ## 2. Inspect GPU and Disk
 
 ```bash
 !nvidia-smi
-!df -h /kaggle/working
+!df -h .
 ```
 
 Recommended: L4/A100 or another recent NVIDIA GPU with at least 12GB VRAM. The official project lists RTX 4090, L40S, A100, and H100 as tested. Kaggle T4/P100 sessions are less certain:
@@ -61,9 +61,9 @@ Kaggle notebooks normally run as root, so do not use `sudo`:
 The official project recommends Python 3.11 and a clean environment.
 
 ```bash
-!python3 -m venv /kaggle/working/olmocr-venv
-!/kaggle/working/olmocr-venv/bin/pip install --upgrade pip
-!/kaggle/working/olmocr-venv/bin/pip install "olmocr[gpu]" --extra-index-url https://download.pytorch.org/whl/cu128
+!python3 -m venv ./olmocr-venv
+!./olmocr-venv/bin/pip install --upgrade pip
+!./olmocr-venv/bin/pip install "olmocr[gpu]" --extra-index-url https://download.pytorch.org/whl/cu128
 ```
 
 The optional FlashInfer wheel may improve speed, but leave it out initially. A simpler first run is easier to debug on Kaggle.
@@ -71,8 +71,8 @@ The optional FlashInfer wheel may improve speed, but leave it out initially. A s
 ## 5. Verify Runtime Before Downloading the Model
 
 ```bash
-!/kaggle/working/olmocr-venv/bin/python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0)); print(torch.cuda.get_device_capability(0))"
-!/kaggle/working/olmocr-venv/bin/olmocr --help
+!./olmocr-venv/bin/python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0)); print(torch.cuda.get_device_capability(0))"
+!./olmocr-venv/bin/olmocr --help
 ```
 
 Stop if `torch.cuda.is_available()` is `False`.
@@ -82,7 +82,7 @@ Stop if `torch.cuda.is_available()` is `False`.
 This keeps model download time out of the benchmark timing.
 
 ```bash
-!HF_HOME=/kaggle/working/hf-cache /kaggle/working/olmocr-venv/bin/python -c "from huggingface_hub import snapshot_download; snapshot_download('allenai/olmOCR-2-7B-1025-FP8')"
+!HF_HOME=./hf-cache ./olmocr-venv/bin/python -c "from huggingface_hub import snapshot_download; snapshot_download('allenai/olmOCR-2-7B-1025-FP8')"
 ```
 
 ## 7. Run the Five-page Benchmark
@@ -90,8 +90,8 @@ This keeps model download time out of the benchmark timing.
 For one suitable GPU:
 
 ```bash
-!HF_HOME=/kaggle/working/hf-cache \
-  OLMOCR_BIN=/kaggle/working/olmocr-venv/bin/olmocr \
+!HF_HOME=./hf-cache \
+  OLMOCR_BIN=./olmocr-venv/bin/olmocr \
   OLMOCR_MODEL=allenai/olmOCR-2-7B-1025-FP8 \
   OLMOCR_TP_SIZE=1 \
   OLMOCR_RUN_ID=kaggle-run-1 \
