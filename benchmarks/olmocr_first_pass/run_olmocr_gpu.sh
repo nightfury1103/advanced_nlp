@@ -19,6 +19,16 @@ fi
 
 printf '%s\n' "$model" > "${run_root}/model.txt"
 
+if [[ "$olmocr_bin" == */* ]]; then
+  olmocr_bin_dir="$(cd "$(dirname "$olmocr_bin")" && pwd)"
+  export PATH="$olmocr_bin_dir:$PATH"
+fi
+
+if ! command -v vllm >/dev/null 2>&1; then
+  printf 'ERROR: vllm executable not found in PATH. Install olmocr[gpu] or set OLMOCR_BIN to the venv/bin/olmocr path.\n' >&2
+  exit 1
+fi
+
 if [[ -f "$launcher" ]]; then
   olmocr_command=("$python_bin" "$launcher")
 else
