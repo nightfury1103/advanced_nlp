@@ -58,6 +58,21 @@ Output:
 benchmarks/no_gpu_first_pass/output/kandianguji/
 ```
 
+For Modal or another server network, use the packaged retry wrapper:
+
+```bash
+export KANDIANGUJI_TOKEN="..."
+export KANDIANGUJI_EMAIL="..."
+KANDIANGUJI_PAGES=44,80,160,240,320 \
+KANDIANGUJI_MAX_ATTEMPTS=5 \
+KANDIANGUJI_CURL_MAX_TIME=300 \
+KANDIANGUJI_RETRY_SLEEP_SECONDS=20 \
+bash benchmarks/no_gpu_first_pass/run_kandianguji_modal.sh
+```
+
+The wrapper records successful pages, writes `page_XXX.error.txt` for failed pages,
+and scores whatever page outputs are available.
+
 ## GJ.cool Hosted API
 
 Requires account credentials and the account-specific base URL from the GJ.cool documentation:

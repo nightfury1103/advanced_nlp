@@ -55,17 +55,26 @@ def selected_pages() -> list[int]:
     return [int(part.strip()) for part in value.split(",") if part.strip()]
 
 
+def env_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    return int(value) if value else default
+
+
 def post_ocr_with_curl(payload: dict[str, str], image_path: Path) -> dict:
     with tempfile.NamedTemporaryFile("w", delete=False) as image_base64_file:
         image_base64_file.write(base64.b64encode(image_path.read_bytes()).decode("ascii"))
         image_base64_path = image_base64_file.name
+
+    max_time = str(env_int("KANDIANGUJI_CURL_MAX_TIME", 240))
+    max_attempts = env_int("KANDIANGUJI_MAX_ATTEMPTS", 3)
+    retry_sleep = env_int("KANDIANGUJI_RETRY_SLEEP_SECONDS", 15)
 
     command = [
         "curl",
         "-sS",
         "--http1.1",
         "--max-time",
-        "240",
+        max_time,
         "-X",
         "POST",
         API_URL,
@@ -76,13 +85,13 @@ def post_ocr_with_curl(payload: dict[str, str], image_path: Path) -> dict:
 
     try:
         last_error = ""
-        for attempt in range(1, 3):
+        for attempt in range(1, max_attempts + 1):
             result = subprocess.run(command, capture_output=True, text=True)
             if result.returncode == 0 and result.stdout.strip():
                 return json.loads(result.stdout)
             last_error = result.stderr.strip() or f"curl exited {result.returncode}"
-            if attempt < 2:
-                time.sleep(10 * attempt)
+            if attempt < max_attempts:
+                time.sleep(retry_sleep * attempt)
         raise RuntimeError(last_error)
     finally:
         Path(image_base64_path).unlink(missing_ok=True)
@@ -94,6 +103,7 @@ def main() -> None:
     email = require_env("KANDIANGUJI_EMAIL")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     summary = []
+    continue_on_error = os.environ.get("KANDIANGUJI_CONTINUE_ON_ERROR", "1") != "0"
 
     for page_number in selected_pages():
         image_path = INPUT_DIR / f"page_{page_number:03d}.png"
@@ -105,7 +115,29 @@ def main() -> None:
         }
 
         started = time.perf_counter()
-        data = post_ocr_with_curl(payload, image_path)
+        try:
+            data = post_ocr_with_curl(payload, image_path)
+        except Exception as exc:
+            wall_time = time.perf_counter() - started
+            error_path = OUTPUT_DIR / f"page_{page_number:03d}.error.txt"
+            error_path.write_text(str(exc), encoding="utf-8")
+            summary.append(
+                {
+                    "page": page_number,
+                    "status": "error",
+                    "wall_time_seconds": round(wall_time, 3),
+                    "error": str(error_path),
+                }
+            )
+            (OUTPUT_DIR / "summary.json").write_text(
+                json.dumps(summary, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            print(f"page_{page_number:03d}: error after {wall_time:.3f}s: {exc}", flush=True)
+            if continue_on_error:
+                continue
+            raise
+
         wall_time = time.perf_counter() - started
         text = extract_text(data)
 
@@ -116,6 +148,7 @@ def main() -> None:
         summary.append(
             {
                 "page": page_number,
+                "status": "ok",
                 "wall_time_seconds": round(wall_time, 3),
                 "text_chars": len(text),
                 "json": str(json_path),
