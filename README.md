@@ -13,14 +13,42 @@ The benchmark currently covers:
 
 The clean evaluation set contains PDF pages `44`, `80`, `160`, `240`, and `320`. All models are compared against the same ChatGPT-assisted OCR reference.
 
-| Model | Pages | Strict weighted CER | Aligned weighted CER | Total time | Average/page | Status |
+### Main finding
+
+KanDianGuJi is the strongest complete system in this benchmark: it scored all five clean pages and achieved the best weighted aligned CER. olmOCR on an NVIDIA L4 is competitive on the four pages it completed, but page `044` repeatedly produced no text output and is treated as a failed page rather than a scored result.
+
+| Model | Scored pages | Strict weighted CER | Aligned weighted CER | Total time | Average/page | Notes |
 |---|---:|---:|---:|---:|---:|---|
-| Umi/RapidOCR CPU | 5 | 0.8691 | 0.8445 | 6.952s | 1.390s | Completed |
-| GJ.cool | 5 | 1.6400 | 0.3582 | 223.942s | 44.788s | Completed |
-| KanDianGuJi | 0 | - | - | - | - | API transport unstable from the development network |
-| olmOCR | 0 | - | - | - | - | Kaggle/GPU package ready |
+| KanDianGuJi | 5/5 | 0.2845 | 0.2527 | 58.433s | 11.687s | Best complete run; handles page `044` |
+| olmOCR L4 FP8 | 4/5 | 0.3031 | 0.3031 | partial/manual | partial/manual | Page `044` produced no text output |
+| Umi/RapidOCR CPU | 5/5 | 0.8691 | 0.8445 | 6.952s | 1.390s | Fast baseline, poor quality on historical vertical text |
+| GJ.cool | 5/5 | 1.6400 | 0.3582 | 223.942s | 44.788s | Extra page text hurts strict CER; aligned CER is more representative |
 
 Strict CER penalizes every additional OCR character. Aligned CER compares the reference against the best matching contiguous span in the OCR output. Both are reported because some ChatGPT references appear shorter than the complete page text returned by GJ.cool.
+
+### KanDianGuJi page-level results
+
+| Page | Strict CER | Aligned CER | Wall time | Status |
+|---:|---:|---:|---:|---|
+| 044 | 0.1765 | 0.1724 | 5.495s | Scored |
+| 080 | 0.3286 | 0.2643 | 11.787s | Scored |
+| 160 | 0.5782 | 0.5102 | 10.397s | Scored |
+| 240 | 0.3582 | 0.3060 | 18.116s | Scored |
+| 320 | 0.2527 | 0.2151 | 12.638s | Scored |
+
+KanDianGuJi quality is usable for rough transcription and search, but it is not yet high-quality scholarly transcription. Pages `160` and `240` are the weakest pages. A retry with a different image size produced identical CER values, so image-size tuning did not improve quality.
+
+### olmOCR L4 page-level results
+
+| Page | Strict CER | Aligned CER | Status |
+|---:|---:|---:|---|
+| 044 | - | - | No text output / timeout problem |
+| 080 | 0.2143 | 0.2143 | Scored |
+| 160 | 0.5442 | 0.5442 | Scored |
+| 240 | 0.2761 | 0.2761 | Scored |
+| 320 | 0.1989 | 0.1989 | Scored |
+
+olmOCR is competitive on the pages it completes, especially pages `080`, `240`, and `320`, but the page `044` failure makes the run incomplete. The benchmark does not synthesize or manually create a replacement `page_044.txt`.
 
 Detailed results: [`benchmarks/no_gpu_first_pass/clean_set_benchmark_report.md`](benchmarks/no_gpu_first_pass/clean_set_benchmark_report.md)
 
@@ -69,15 +97,18 @@ Whitespace and common punctuation are removed before CER calculation. Traditiona
     │   ├── input_images/               # Full-resolution rendered pages
     │   ├── input_images_gjcool_1800/   # GJ.cool API inputs
     │   ├── input_images_kandianguji_800/
+    │   ├── input_images_kandianguji_1200/
     │   ├── ground_truth/
     │   ├── output/
     │   │   ├── umi_cpu/
     │   │   ├── gjcool/
-    │   │   └── kandianguji/
+    │   │   ├── kandianguji/
+    │   │   └── olmocr_l4_smoke/
     │   ├── render_pages.py
     │   ├── run_umi_cpu_rapidocr.py
     │   ├── run_gjcool_api.py
     │   ├── run_kandianguji_api.py
+    │   ├── run_kandianguji_modal.sh
     │   └── score_ocr.py
     └── olmocr_first_pass/
         ├── KAGGLE.md
@@ -157,7 +188,17 @@ KANDIANGUJI_PAGES=44 \
   python3 benchmarks/no_gpu_first_pass/run_kandianguji_api.py
 ```
 
-The implementation follows the documented Form Data API and uses `curl --http1.1` because Python TLS requests were unreliable from the original development network. Token status succeeded, but OCR calls remained intermittent. See `benchmarks/no_gpu_first_pass/output/kandianguji/run_status.md`.
+Run the clean set from a server environment:
+
+```bash
+KANDIANGUJI_PAGES=44,80,160,240,320 \
+KANDIANGUJI_MAX_ATTEMPTS=5 \
+KANDIANGUJI_CURL_MAX_TIME=300 \
+KANDIANGUJI_RETRY_SLEEP_SECONDS=20 \
+bash benchmarks/no_gpu_first_pass/run_kandianguji_modal.sh
+```
+
+The implementation follows the documented Form Data API and uses `curl --http1.1` because Python TLS requests were unreliable from the original development network. The local network was unstable, but the Modal/server run completed all five clean pages. See `benchmarks/no_gpu_first_pass/output/kandianguji/run_status.md`.
 
 ## olmOCR on Kaggle
 
@@ -172,6 +213,8 @@ bash benchmarks/olmocr_first_pass/run_kaggle.sh
 ```
 
 Each run receives a unique workspace under `benchmarks/olmocr_first_pass/output/runs/`, preventing cached work from corrupting timing measurements.
+
+The recorded L4 smoke result used `allenai/olmOCR-2-7B-1025-FP8` with tensor parallel size `1` on one NVIDIA L4. Pages `080`, `160`, `240`, and `320` produced scored text outputs; page `044` produced no text output after retry and is counted as a missing prediction.
 
 ## Reproducibility Notes
 
@@ -192,4 +235,6 @@ Each run receives a unique workspace under `benchmarks/olmocr_first_pass/output/
 - Some reference pages may contain less text than the complete page output from hosted OCR services.
 - Hosted API timings include network latency.
 - olmOCR timing includes model startup unless a persistent external server is used.
+- The olmOCR L4 smoke run is incomplete because page `044` produced no text output.
+- KanDianGuJi completed all pages, but pages `160` and `240` still have high CER.
 - The current set is small and should be expanded only after reference scope is made consistent.

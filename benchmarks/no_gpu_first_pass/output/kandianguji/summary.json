@@ -1,0 +1,42 @@
+[
+  {
+    "page": 44,
+    "status": "ok",
+    "wall_time_seconds": 5.495,
+    "text_chars": 606,
+    "json": "benchmarks/no_gpu_first_pass/output/kandianguji/page_044.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/kandianguji/page_044.txt"
+  },
+  {
+    "page": 80,
+    "status": "ok",
+    "wall_time_seconds": 11.787,
+    "text_chars": 148,
+    "json": "benchmarks/no_gpu_first_pass/output/kandianguji/page_080.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/kandianguji/page_080.txt"
+  },
+  {
+    "page": 160,
+    "status": "ok",
+    "wall_time_seconds": 10.397,
+    "text_chars": 153,
+    "json": "benchmarks/no_gpu_first_pass/output/kandianguji/page_160.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/kandianguji/page_160.txt"
+  },
+  {
+    "page": 240,
+    "status": "ok",
+    "wall_time_seconds": 18.116,
+    "text_chars": 145,
+    "json": "benchmarks/no_gpu_first_pass/output/kandianguji/page_240.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/kandianguji/page_240.txt"
+  },
+  {
+    "page": 320,
+    "status": "ok",
+    "wall_time_seconds": 12.638,
+    "text_chars": 191,
+    "json": "benchmarks/no_gpu_first_pass/output/kandianguji/page_320.json",
+    "txt": "benchmarks/no_gpu_first_pass/output/kandianguji/page_320.txt"
+  }
+]
