@@ -1,19 +1,19 @@
 {
   "summary": {
-    "scored_pages": 2,
+    "scored_pages": 3,
     "missing_ground_truth_pages": 3,
-    "missing_prediction_pages": 3,
-    "reference_chars": 287,
-    "prediction_chars": 262,
-    "edit_distance": 110,
-    "weighted_cer": 0.3833,
-    "aligned_edit_distance": 110,
-    "weighted_aligned_cer": 0.3833,
+    "missing_prediction_pages": 2,
+    "reference_chars": 421,
+    "prediction_chars": 391,
+    "edit_distance": 147,
+    "weighted_cer": 0.3492,
+    "aligned_edit_distance": 147,
+    "weighted_aligned_cer": 0.3492,
     "total_wall_time_seconds": null,
     "avg_wall_time_seconds": null,
     "reference_chars_per_second": null,
     "prediction_chars_per_second": null,
-    "prediction_reference_char_ratio": 0.9129
+    "prediction_reference_char_ratio": 0.9287
   },
   "pages": [
     {
@@ -64,7 +64,18 @@
     },
     {
       "page": 240,
-      "status": "missing_prediction"
+      "status": "scored",
+      "reference_chars": 134,
+      "prediction_chars": 129,
+      "edit_distance": 37,
+      "cer": 0.2761,
+      "aligned_edit_distance": 37,
+      "aligned_cer": 0.2761,
+      "wall_time_seconds": null,
+      "ocr_items": null,
+      "prediction_reference_char_ratio": 0.9627,
+      "reference_chars_per_second": null,
+      "prediction_chars_per_second": null
     },
     {
       "page": 320,
