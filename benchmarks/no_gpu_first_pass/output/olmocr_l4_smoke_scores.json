@@ -1,0 +1,63 @@
+{
+  "summary": {
+    "scored_pages": 1,
+    "missing_ground_truth_pages": 3,
+    "missing_prediction_pages": 4,
+    "reference_chars": 140,
+    "prediction_chars": 129,
+    "edit_distance": 30,
+    "weighted_cer": 0.2143,
+    "aligned_edit_distance": 30,
+    "weighted_aligned_cer": 0.2143,
+    "total_wall_time_seconds": null,
+    "avg_wall_time_seconds": null,
+    "reference_chars_per_second": null,
+    "prediction_chars_per_second": null,
+    "prediction_reference_char_ratio": 0.9214
+  },
+  "pages": [
+    {
+      "page": 5,
+      "status": "missing_ground_truth"
+    },
+    {
+      "page": 20,
+      "status": "missing_ground_truth"
+    },
+    {
+      "page": 44,
+      "status": "missing_prediction"
+    },
+    {
+      "page": 52,
+      "status": "missing_ground_truth"
+    },
+    {
+      "page": 80,
+      "status": "scored",
+      "reference_chars": 140,
+      "prediction_chars": 129,
+      "edit_distance": 30,
+      "cer": 0.2143,
+      "aligned_edit_distance": 30,
+      "aligned_cer": 0.2143,
+      "wall_time_seconds": null,
+      "ocr_items": null,
+      "prediction_reference_char_ratio": 0.9214,
+      "reference_chars_per_second": null,
+      "prediction_chars_per_second": null
+    },
+    {
+      "page": 160,
+      "status": "missing_prediction"
+    },
+    {
+      "page": 240,
+      "status": "missing_prediction"
+    },
+    {
+      "page": 320,
+      "status": "missing_prediction"
+    }
+  ]
+}
