@@ -1,0 +1,200 @@
+{
+  "summary": {
+    "metric": "OCR output agreement",
+    "strict_agreement": "1 - pairwise edit distance / max normalized output length",
+    "aligned_agreement": "1 - shorter output edit distance to best contiguous span in longer output / shorter length",
+    "normalization": "same normalization as score_ocr.py"
+  },
+  "sections": [
+    {
+      "name": "all_models_shared_pages",
+      "models": [
+        "KanDianGuJi",
+        "olmOCR L4 FP8",
+        "Umi/RapidOCR CPU",
+        "GJ.cool"
+      ],
+      "requested_pages": [
+        80,
+        160,
+        240,
+        320
+      ],
+      "pairs": [
+        {
+          "model_a": "KanDianGuJi",
+          "model_b": "olmOCR L4 FP8",
+          "pages": [
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 4,
+          "strict_edit_distance": 168,
+          "strict_denominator": 599,
+          "strict_agreement": 0.7195,
+          "aligned_edit_distance": 129,
+          "aligned_denominator": 561,
+          "aligned_agreement": 0.7701
+        },
+        {
+          "model_a": "KanDianGuJi",
+          "model_b": "Umi/RapidOCR CPU",
+          "pages": [
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 4,
+          "strict_edit_distance": 558,
+          "strict_denominator": 599,
+          "strict_agreement": 0.0684,
+          "aligned_edit_distance": 404,
+          "aligned_denominator": 475,
+          "aligned_agreement": 0.1495
+        },
+        {
+          "model_a": "KanDianGuJi",
+          "model_b": "GJ.cool",
+          "pages": [
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 4,
+          "strict_edit_distance": 1676,
+          "strict_denominator": 2138,
+          "strict_agreement": 0.2161,
+          "aligned_edit_distance": 271,
+          "aligned_denominator": 578,
+          "aligned_agreement": 0.5311
+        },
+        {
+          "model_a": "olmOCR L4 FP8",
+          "model_b": "Umi/RapidOCR CPU",
+          "pages": [
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 4,
+          "strict_edit_distance": 519,
+          "strict_denominator": 561,
+          "strict_agreement": 0.0749,
+          "aligned_edit_distance": 404,
+          "aligned_denominator": 475,
+          "aligned_agreement": 0.1495
+        },
+        {
+          "model_a": "olmOCR L4 FP8",
+          "model_b": "GJ.cool",
+          "pages": [
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 4,
+          "strict_edit_distance": 1684,
+          "strict_denominator": 2117,
+          "strict_agreement": 0.2045,
+          "aligned_edit_distance": 276,
+          "aligned_denominator": 561,
+          "aligned_agreement": 0.508
+        },
+        {
+          "model_a": "Umi/RapidOCR CPU",
+          "model_b": "GJ.cool",
+          "pages": [
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 4,
+          "strict_edit_distance": 2042,
+          "strict_denominator": 2117,
+          "strict_agreement": 0.0354,
+          "aligned_edit_distance": 420,
+          "aligned_denominator": 475,
+          "aligned_agreement": 0.1158
+        }
+      ]
+    },
+    {
+      "name": "complete_models_clean_pages",
+      "models": [
+        "KanDianGuJi",
+        "Umi/RapidOCR CPU",
+        "GJ.cool"
+      ],
+      "requested_pages": [
+        44,
+        80,
+        160,
+        240,
+        320
+      ],
+      "pairs": [
+        {
+          "model_a": "KanDianGuJi",
+          "model_b": "Umi/RapidOCR CPU",
+          "pages": [
+            44,
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 5,
+          "strict_edit_distance": 1045,
+          "strict_denominator": 1158,
+          "strict_agreement": 0.0976,
+          "aligned_edit_distance": 685,
+          "aligned_denominator": 813,
+          "aligned_agreement": 0.1574
+        },
+        {
+          "model_a": "KanDianGuJi",
+          "model_b": "GJ.cool",
+          "pages": [
+            44,
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 5,
+          "strict_edit_distance": 1757,
+          "strict_denominator": 2697,
+          "strict_agreement": 0.3485,
+          "aligned_edit_distance": 351,
+          "aligned_denominator": 1133,
+          "aligned_agreement": 0.6902
+        },
+        {
+          "model_a": "Umi/RapidOCR CPU",
+          "model_b": "GJ.cool",
+          "pages": [
+            44,
+            80,
+            160,
+            240,
+            320
+          ],
+          "page_count": 5,
+          "strict_edit_distance": 2524,
+          "strict_denominator": 2672,
+          "strict_agreement": 0.0554,
+          "aligned_edit_distance": 698,
+          "aligned_denominator": 813,
+          "aligned_agreement": 0.1415
+        }
+      ]
+    }
+  ]
+}

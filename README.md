@@ -50,6 +50,31 @@ KanDianGuJi quality is usable for rough transcription and search, but it is not 
 
 olmOCR is competitive on the pages it completes, especially pages `080`, `240`, and `320`, but the page `044` failure makes the run incomplete. The benchmark does not synthesize or manually create a replacement `page_044.txt`.
 
+### Model agreement
+
+Agreement measures how similar two OCR outputs are to each other after the same normalization used for CER. Strict agreement is `1 - edit_distance / max(output_length)`. Aligned agreement compares the shorter output against the best contiguous span in the longer output, which is more appropriate when one system returns extra headers or page text.
+
+All-model agreement on pages `080`, `160`, `240`, and `320`:
+
+| Pair | Shared pages | Strict agreement | Aligned agreement |
+|---|---:|---:|---:|
+| KanDianGuJi vs olmOCR L4 FP8 | 4 | 0.7195 | 0.7701 |
+| KanDianGuJi vs GJ.cool | 4 | 0.2161 | 0.5311 |
+| olmOCR L4 FP8 vs GJ.cool | 4 | 0.2045 | 0.5080 |
+| KanDianGuJi vs Umi/RapidOCR CPU | 4 | 0.0684 | 0.1495 |
+| olmOCR L4 FP8 vs Umi/RapidOCR CPU | 4 | 0.0749 | 0.1495 |
+| Umi/RapidOCR CPU vs GJ.cool | 4 | 0.0354 | 0.1158 |
+
+Complete-model agreement on pages `044`, `080`, `160`, `240`, and `320`:
+
+| Pair | Shared pages | Strict agreement | Aligned agreement |
+|---|---:|---:|---:|
+| KanDianGuJi vs GJ.cool | 5 | 0.3485 | 0.6902 |
+| KanDianGuJi vs Umi/RapidOCR CPU | 5 | 0.0976 | 0.1574 |
+| Umi/RapidOCR CPU vs GJ.cool | 5 | 0.0554 | 0.1415 |
+
+The agreement results support the CER conclusion. KanDianGuJi and olmOCR are the closest systems on the four shared pages, while Umi/RapidOCR has low agreement with every other model. GJ.cool agrees better after alignment than under strict comparison because it often returns substantially more surrounding page text.
+
 Detailed results: [`benchmarks/no_gpu_first_pass/clean_set_benchmark_report.md`](benchmarks/no_gpu_first_pass/clean_set_benchmark_report.md)
 
 ## Benchmark Design
@@ -103,8 +128,10 @@ Whitespace and common punctuation are removed before CER calculation. Traditiona
     │   │   ├── umi_cpu/
     │   │   ├── gjcool/
     │   │   ├── kandianguji/
-    │   │   └── olmocr_l4_smoke/
+    │   │   ├── olmocr_l4_smoke/
+    │   │   └── agreement_scores.json
     │   ├── render_pages.py
+    │   ├── agreement_ocr.py
     │   ├── run_umi_cpu_rapidocr.py
     │   ├── run_gjcool_api.py
     │   ├── run_kandianguji_api.py
@@ -148,6 +175,13 @@ Run scorer tests:
 
 ```bash
 python3 benchmarks/no_gpu_first_pass/test_score_ocr.py
+```
+
+Compute pairwise model agreement:
+
+```bash
+python3 benchmarks/no_gpu_first_pass/agreement_ocr.py \
+  --out benchmarks/no_gpu_first_pass/output/agreement_scores.json
 ```
 
 ## GJ.cool
