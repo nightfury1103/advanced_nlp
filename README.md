@@ -234,6 +234,65 @@ bash benchmarks/no_gpu_first_pass/run_kandianguji_modal.sh
 
 The implementation follows the documented Form Data API and uses `curl --http1.1` because Python TLS requests were unreliable from the original development network. The local network was unstable, but the Modal/server run completed all five clean pages. See `benchmarks/no_gpu_first_pass/output/kandianguji/run_status.md`.
 
+### Full-book OCR output for voting
+
+The full-book phase runs KanDianGuJi over every page in every PDF under `books/`
+and writes model-neutral page outputs for later agreement/voting with other OCR
+models. This phase is OCR-only; sentence splitting, NER, correction, alignment,
+and final voting are separate later steps.
+
+All full-book model runs must follow the shared output contract in
+[`docs/ocr_output_standard.md`](docs/ocr_output_standard.md). Other model owners
+should copy that structure exactly so agreement voting can compare page-level
+outputs without model-specific conversion. The standard specifies the reading
+order for vertical pages: top-to-bottom within each column, then right-to-left
+across columns.
+
+Run locally or on Modal with the token variables set:
+
+```bash
+KANDIANGUJI_TOKEN=your-token \
+KANDIANGUJI_EMAIL=your-account-email-or-phone \
+uv run --with pypdfium2 --with pillow \
+  python scripts/run_kandianguji_full_ocr.py \
+    --books-dir books \
+    --run-id kandianguji-full-001
+```
+
+For a smoke test on a small page range:
+
+```bash
+KANDIANGUJI_TOKEN=your-token \
+KANDIANGUJI_EMAIL=your-account-email-or-phone \
+uv run --with pypdfium2 --with pillow \
+  python scripts/run_kandianguji_full_ocr.py \
+    --books-dir books \
+    --run-id kandianguji-smoke \
+    --pages 1-3
+```
+
+Outputs are written under:
+
+```text
+outputs/ocr_runs/kandianguji/<run_id>/
+├── manifest.jsonl
+├── pages_json/<book_id>/page_0001.json
+├── pages_text/<book_id>/page_0001.txt
+├── books_text/<book_id>.txt
+└── logs/
+```
+
+`manifest.jsonl` records one row per page with `model`, `run_id`, `book_id`,
+`source_pdf`, `page_number`, `status`, `text_path`, `json_path`, `char_count`,
+`wall_time_seconds`, and `error`. Valid page statuses are `ok`, `blank`,
+`error`, and `skipped`. Re-running the same `--run-id` skips completed pages by
+default; use `--force` to overwrite prior page outputs.
+
+Rendered page images are temporary upload files and are deleted after each page
+unless `--keep-cache` is supplied. The original PDFs in `books/` remain the
+image evidence. The KanDianGuJi responses observed in this project contain text
+lines but no bounding boxes, so later voting should compare text at page level.
+
 ## olmOCR on Kaggle
 
 The olmOCR benchmark uses the same five pages and records GPU/model/timing metadata. Follow:

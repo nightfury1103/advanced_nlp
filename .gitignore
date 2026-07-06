@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# macOS
+.DS_Store
+
+# Local failed OCR backup runs
+outputs/ocr_runs/*/*-local-failed*/

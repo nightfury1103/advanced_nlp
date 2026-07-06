@@ -17,11 +17,9 @@ model="${OLMOCR_MODEL:-allenai/olmOCR-2-7B-1025-FP8}"
 tp_size="${OLMOCR_TP_SIZE:-1}"
 run_id="${OLMOCR_RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}"
 preflight_only="${OLMOCR_PREFLIGHT_ONLY:-0}"
-run_timeout="${OLMOCR_TIMEOUT:-0}"
 run_root="benchmarks/olmocr_first_pass/output/runs/${run_id}"
 workspace="${run_root}/workspace"
 timing="${run_root}/olmocr_timing.txt"
-status_file="${run_root}/run_status.txt"
 
 mkdir -p "$workspace"
 
@@ -114,26 +112,7 @@ else
   olmocr_command=("$olmocr_bin")
 fi
 
-if [[ -n "${OLMOCR_PDFS:-}" ]]; then
-  read -r -a pdf_paths <<< "$OLMOCR_PDFS"
-else
-  pdf_paths=(
-    benchmarks/olmocr_first_pass/input_pages/page_044.pdf
-    benchmarks/olmocr_first_pass/input_pages/page_080.pdf
-    benchmarks/olmocr_first_pass/input_pages/page_160.pdf
-    benchmarks/olmocr_first_pass/input_pages/page_240.pdf
-    benchmarks/olmocr_first_pass/input_pages/page_320.pdf
-  )
-fi
-
-time_command=(/usr/bin/time -p -o "$timing")
-if [[ "$run_timeout" != "0" ]]; then
-  command -v timeout >/dev/null 2>&1 || fail "OLMOCR_TIMEOUT requires the GNU timeout command"
-  time_command=(timeout "$run_timeout" "${time_command[@]}")
-fi
-
-set +e
-"${time_command[@]}" \
+/usr/bin/time -p -o "$timing" \
   "${olmocr_command[@]}" "$workspace" \
     --model "$model" \
     --markdown \
@@ -145,36 +124,12 @@ set +e
     --max_model_len 16384 \
     --tensor-parallel-size "$tp_size" \
     --pdfs \
-      "${pdf_paths[@]}"
-olmocr_exit_code=$?
-set -e
+      benchmarks/olmocr_first_pass/input_pages/page_044.pdf \
+      benchmarks/olmocr_first_pass/input_pages/page_080.pdf \
+      benchmarks/olmocr_first_pass/input_pages/page_160.pdf \
+      benchmarks/olmocr_first_pass/input_pages/page_240.pdf \
+      benchmarks/olmocr_first_pass/input_pages/page_320.pdf
 
-{
-  printf 'olmocr_exit_code=%s\n' "$olmocr_exit_code"
-  if [[ "$olmocr_exit_code" == "124" ]]; then
-    printf 'status=timeout\n'
-  elif [[ "$olmocr_exit_code" == "0" ]]; then
-    printf 'status=completed\n'
-  else
-    printf 'status=failed\n'
-  fi
-} > "$status_file"
-
-if find "$workspace/markdown" -name 'page_*.md' -print -quit 2>/dev/null | grep -q .; then
-  python3 benchmarks/olmocr_first_pass/prepare_olmocr_results.py "$run_root"
-else
-  {
-    printf 'No Markdown outputs were produced.\n'
-    printf 'Run root: %s\n' "$run_root"
-    printf 'Status file: %s\n' "$status_file"
-    printf 'If this was page 044, mark it as timeout/problem page unless you want to retry with a longer timeout.\n'
-  } >&2
-  exit "$olmocr_exit_code"
-fi
-
-if [[ "$olmocr_exit_code" != "0" ]]; then
-  printf 'olmOCR exited with code %s after packaging partial outputs. See %s\n' "$olmocr_exit_code" "$status_file" >&2
-  exit "$olmocr_exit_code"
-fi
+python3 benchmarks/olmocr_first_pass/prepare_olmocr_results.py "$run_root"
 
 printf 'olmOCR run complete: %s\n' "$run_root"

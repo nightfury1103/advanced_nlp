@@ -36,22 +36,6 @@ class RunOlmocrGpuConfigTest(unittest.TestCase):
         self.assertIn('if [[ "$preflight_only" == "1" ]]', SCRIPT)
         self.assertIn("olmOCR GPU preflight complete", SCRIPT)
 
-    def test_allows_modal_smoke_runs_to_choose_pdf_list(self):
-        self.assertIn('if [[ -n "${OLMOCR_PDFS:-}" ]]', SCRIPT)
-        self.assertIn('read -r -a pdf_paths <<< "$OLMOCR_PDFS"', SCRIPT)
-        self.assertIn('"${pdf_paths[@]}"', SCRIPT)
-
-    def test_allows_wall_clock_timeout_for_cost_control(self):
-        self.assertIn('run_timeout="${OLMOCR_TIMEOUT:-0}"', SCRIPT)
-        self.assertIn('if [[ "$run_timeout" != "0" ]]', SCRIPT)
-        self.assertIn('timeout "$run_timeout"', SCRIPT)
-
-    def test_writes_status_and_reports_missing_markdown(self):
-        self.assertIn('status_file="${run_root}/run_status.txt"', SCRIPT)
-        self.assertIn('olmocr_exit_code=', SCRIPT)
-        self.assertIn('No Markdown outputs were produced', SCRIPT)
-        self.assertIn('find "$workspace/markdown" -name', SCRIPT)
-
 
 if __name__ == "__main__":
     unittest.main()

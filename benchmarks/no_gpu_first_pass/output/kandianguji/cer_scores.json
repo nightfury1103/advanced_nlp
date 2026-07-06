@@ -9,10 +9,10 @@
     "weighted_cer": 0.2845,
     "aligned_edit_distance": 278,
     "weighted_aligned_cer": 0.2527,
-    "total_wall_time_seconds": 58.433,
-    "avg_wall_time_seconds": 11.687,
-    "reference_chars_per_second": 18.82,
-    "prediction_chars_per_second": 19.82,
+    "total_wall_time_seconds": 55.585,
+    "avg_wall_time_seconds": 11.117,
+    "reference_chars_per_second": 19.79,
+    "prediction_chars_per_second": 20.83,
     "prediction_reference_char_ratio": 1.0527
   },
   "pages": [
@@ -33,11 +33,11 @@
       "cer": 0.1765,
       "aligned_edit_distance": 85,
       "aligned_cer": 0.1724,
-      "wall_time_seconds": 5.495,
+      "wall_time_seconds": 10.105,
       "ocr_items": null,
       "prediction_reference_char_ratio": 1.1339,
-      "reference_chars_per_second": 89.72,
-      "prediction_chars_per_second": 101.73
+      "reference_chars_per_second": 48.79,
+      "prediction_chars_per_second": 55.32
     },
     {
       "page": 52,
@@ -52,11 +52,11 @@
       "cer": 0.3286,
       "aligned_edit_distance": 37,
       "aligned_cer": 0.2643,
-      "wall_time_seconds": 11.787,
+      "wall_time_seconds": 10.769,
       "ocr_items": null,
       "prediction_reference_char_ratio": 0.9857,
-      "reference_chars_per_second": 11.88,
-      "prediction_chars_per_second": 11.71
+      "reference_chars_per_second": 13.0,
+      "prediction_chars_per_second": 12.81
     },
     {
       "page": 160,
@@ -67,11 +67,11 @@
       "cer": 0.5782,
       "aligned_edit_distance": 75,
       "aligned_cer": 0.5102,
-      "wall_time_seconds": 10.397,
+      "wall_time_seconds": 6.007,
       "ocr_items": null,
       "prediction_reference_char_ratio": 0.9796,
-      "reference_chars_per_second": 14.14,
-      "prediction_chars_per_second": 13.85
+      "reference_chars_per_second": 24.47,
+      "prediction_chars_per_second": 23.97
     },
     {
       "page": 240,
@@ -82,11 +82,11 @@
       "cer": 0.3582,
       "aligned_edit_distance": 41,
       "aligned_cer": 0.306,
-      "wall_time_seconds": 18.116,
+      "wall_time_seconds": 23.69,
       "ocr_items": null,
       "prediction_reference_char_ratio": 1.0149,
-      "reference_chars_per_second": 7.4,
-      "prediction_chars_per_second": 7.51
+      "reference_chars_per_second": 5.66,
+      "prediction_chars_per_second": 5.74
     },
     {
       "page": 320,
@@ -97,11 +97,11 @@
       "cer": 0.2527,
       "aligned_edit_distance": 40,
       "aligned_cer": 0.2151,
-      "wall_time_seconds": 12.638,
+      "wall_time_seconds": 5.014,
       "ocr_items": null,
       "prediction_reference_char_ratio": 0.9731,
-      "reference_chars_per_second": 14.72,
-      "prediction_chars_per_second": 14.32
+      "reference_chars_per_second": 37.1,
+      "prediction_chars_per_second": 36.1
     }
   ]
 }
