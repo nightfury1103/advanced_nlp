@@ -241,6 +241,14 @@ and writes model-neutral page outputs for later agreement/voting with other OCR
 models. This phase is OCR-only; sentence splitting, NER, correction, alignment,
 and final voting are separate later steps.
 
+## Hán--Việt Sentence Alignment
+
+The final parallel-corpus phase aligns pre-segmented Hán and Vietnamese documents
+with LaBSE embeddings. It supports 1-1, 1-2, 2-1, and 2-2 links and writes
+low-confidence or unmatched sentences as explicit review rows. See
+[`docs/alignment_output_standard.md`](docs/alignment_output_standard.md) for the
+required Vietnamese input and the full command.
+
 All full-book model runs must follow the shared output contract in
 [`docs/ocr_output_standard.md`](docs/ocr_output_standard.md). Other model owners
 should copy that structure exactly so agreement voting can compare page-level

@@ -222,3 +222,6 @@ __marimo__/
 
 # Local failed OCR backup runs
 outputs/ocr_runs/*/*-local-failed*/
+
+# Local report-review messages submitted through reports/review_server.py
+reports/feedback.jsonl
