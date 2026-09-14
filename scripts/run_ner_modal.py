@@ -12,13 +12,18 @@ from typing import Any
 import modal
 
 
-APP_NAME = "advanced-nlp-ner-books-001-010"
-RUN_ID = "ner-models-books-001-010-v001"
-INPUT_ROOT = Path("outputs/sentence_separation/sentence-agreement-vote-books-001-010-v001/books_sentences")
+APP_NAME = os.environ.get("NER_APP_NAME", "advanced-nlp-ner-books-001-010")
+RUN_ID = os.environ.get("NER_RUN_ID", "ner-models-books-001-010-v001")
+INPUT_ROOT = Path(
+    os.environ.get(
+        "NER_INPUT_ROOT",
+        "outputs/sentence_separation/sentence-agreement-vote-books-001-010-v001/books_sentences",
+    )
+)
 REMOTE_INPUT_ROOT = Path("/root/ner-input")
 REMOTE_OUTPUT_ROOT = Path("/mnt/ner-output")
 REMOTE_MODEL_CACHE_ROOT = Path("/mnt/ner-model-cache")
-OUTPUT_VOLUME_NAME = "advanced-nlp-ner-output"
+OUTPUT_VOLUME_NAME = os.environ.get("NER_OUTPUT_VOLUME_NAME", "advanced-nlp-ner-output")
 MODEL_CACHE_VOLUME_NAME = "advanced-nlp-ner-model-cache"
 QWEN_CACHE_VOLUME_NAME = "advanced-nlp-qwen25-14b-cache"
 
@@ -26,8 +31,11 @@ CKIP_MODEL = "ckiplab/bert-base-chinese-ner"
 HANLP_MODEL = "hanlp.pretrained.ner.MSRA_NER_ELECTRA_SMALL_ZH"
 QWEN_MODEL = "Qwen/Qwen2.5-14B-Instruct-AWQ"
 
+INPUT_BOOK_START = int(os.environ.get("NER_INPUT_BOOK_START", "1"))
+INPUT_BOOK_END = int(os.environ.get("NER_INPUT_BOOK_END", "10"))
 INPUT_FILE_NAMES = tuple(
-    f"越南汉文燕行文献集成_第{book_number}册.jsonl" for book_number in range(1, 11)
+    f"越南汉文燕行文献集成_第{book_number}册.jsonl"
+    for book_number in range(INPUT_BOOK_START, INPUT_BOOK_END + 1)
 )
 
 CANONICAL_LABELS = (
@@ -369,8 +377,8 @@ def _predictor(model_key: str) -> Any:
     raise ValueError(f"unknown model key: {model_key}")
 
 
-def _output_dir(model_key: str) -> Path:
-    return REMOTE_OUTPUT_ROOT / "ner_runs" / RUN_ID / model_key
+def _output_dir(model_key: str, run_id: str) -> Path:
+    return REMOTE_OUTPUT_ROOT / "ner_runs" / run_id / model_key
 
 
 def _load_done_ids(path: Path) -> set[str]:
@@ -383,8 +391,15 @@ def _load_done_ids(path: Path) -> set[str]:
     }
 
 
-def _write_metadata(model_key: str, *, requested_sentences: int, book_filter: str) -> None:
-    output_dir = _output_dir(model_key)
+def _write_metadata(
+    model_key: str,
+    *,
+    run_id: str,
+    input_run_id: str,
+    requested_sentences: int,
+    book_filter: str,
+) -> None:
+    output_dir = _output_dir(model_key, run_id)
     output_dir.mkdir(parents=True, exist_ok=True)
     metadata_path = output_dir / "run_metadata.json"
     if metadata_path.exists():
@@ -392,8 +407,8 @@ def _write_metadata(model_key: str, *, requested_sentences: int, book_filter: st
     metadata = {
         "model_key": model_key,
         "model": {"ckip": CKIP_MODEL, "hanlp": HANLP_MODEL, "qwen25": QWEN_MODEL}[model_key],
-        "run_id": RUN_ID,
-        "input_run_id": "sentence-agreement-vote-books-001-010-v001",
+        "run_id": run_id,
+        "input_run_id": input_run_id,
         "canonical_labels": list(CANONICAL_LABELS),
         "requested_sentences": requested_sentences,
         "book_filter": book_filter,
@@ -402,24 +417,37 @@ def _write_metadata(model_key: str, *, requested_sentences: int, book_filter: st
     metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def _write_summary(model_key: str, summary: dict[str, Any]) -> None:
-    output_dir = _output_dir(model_key)
+def _write_summary(model_key: str, run_id: str, summary: dict[str, Any]) -> None:
+    output_dir = _output_dir(model_key, run_id)
     output_dir.mkdir(parents=True, exist_ok=True)
     (output_dir / "summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8"
     )
 
 
-def run_model(model_key: str, *, limit_sentences: int = 0, book_filter: str = "") -> dict[str, Any]:
+def run_model(
+    model_key: str,
+    *,
+    run_id: str,
+    input_run_id: str,
+    limit_sentences: int = 0,
+    book_filter: str = "",
+) -> dict[str, Any]:
     grouped = _load_input_rows(book_filter=book_filter, limit_sentences=limit_sentences)
-    _write_metadata(model_key, requested_sentences=limit_sentences, book_filter=book_filter)
+    _write_metadata(
+        model_key,
+        run_id=run_id,
+        input_run_id=input_run_id,
+        requested_sentences=limit_sentences,
+        book_filter=book_filter,
+    )
     predictor = _predictor(model_key)
-    output_dir = _output_dir(model_key)
+    output_dir = _output_dir(model_key, run_id)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     summary: dict[str, Any] = {
         "model_key": model_key,
-        "run_id": RUN_ID,
+        "run_id": run_id,
         "input_sentences": sum(len(rows) for rows in grouped.values()),
         "processed_sentences": 0,
         "skipped_sentences": 0,
@@ -454,7 +482,7 @@ def run_model(model_key: str, *, limit_sentences: int = 0, book_filter: str = ""
                     result = {
                         "model_key": model_key,
                         "model": {"ckip": CKIP_MODEL, "hanlp": HANLP_MODEL, "qwen25": QWEN_MODEL}[model_key],
-                        "run_id": RUN_ID,
+                        "run_id": run_id,
                         "sentence_id": row["sentence_id"],
                         "book_id": row["book_id"],
                         "page_number": row.get("page_number"),
@@ -488,11 +516,11 @@ def run_model(model_key: str, *, limit_sentences: int = 0, book_filter: str = ""
             "entity_count": sum(book_counts.values()),
             "label_counts": dict(book_counts),
         }
-        _write_summary(model_key, {**summary, "label_counts": dict(summary["label_counts"])})
+        _write_summary(model_key, run_id, {**summary, "label_counts": dict(summary["label_counts"])})
         output_volume.commit()
 
     summary["label_counts"] = dict(summary["label_counts"])
-    _write_summary(model_key, summary)
+    _write_summary(model_key, run_id, summary)
     output_volume.commit()
     return summary
 
@@ -506,9 +534,20 @@ app = modal.App(APP_NAME)
     volumes={"/mnt/ner-output": output_volume, "/mnt/ner-model-cache": model_cache_volume},
     timeout=60 * 60 * 12,
 )
-def run_ckip(limit_sentences: int = 0, book_filter: str = "") -> dict[str, Any]:
+def run_ckip(
+    run_id: str,
+    input_run_id: str,
+    limit_sentences: int = 0,
+    book_filter: str = "",
+) -> dict[str, Any]:
     os.environ.setdefault("HF_HOME", str(REMOTE_MODEL_CACHE_ROOT / "huggingface"))
-    return run_model("ckip", limit_sentences=limit_sentences, book_filter=book_filter)
+    return run_model(
+        "ckip",
+        run_id=run_id,
+        input_run_id=input_run_id,
+        limit_sentences=limit_sentences,
+        book_filter=book_filter,
+    )
 
 
 @app.function(
@@ -517,9 +556,20 @@ def run_ckip(limit_sentences: int = 0, book_filter: str = "") -> dict[str, Any]:
     volumes={"/mnt/ner-output": output_volume, "/mnt/ner-model-cache": model_cache_volume},
     timeout=60 * 60 * 12,
 )
-def run_hanlp(limit_sentences: int = 0, book_filter: str = "") -> dict[str, Any]:
+def run_hanlp(
+    run_id: str,
+    input_run_id: str,
+    limit_sentences: int = 0,
+    book_filter: str = "",
+) -> dict[str, Any]:
     os.environ.setdefault("HANLP_HOME", str(REMOTE_MODEL_CACHE_ROOT / "hanlp"))
-    return run_model("hanlp", limit_sentences=limit_sentences, book_filter=book_filter)
+    return run_model(
+        "hanlp",
+        run_id=run_id,
+        input_run_id=input_run_id,
+        limit_sentences=limit_sentences,
+        book_filter=book_filter,
+    )
 
 
 @app.function(
@@ -528,17 +578,45 @@ def run_hanlp(limit_sentences: int = 0, book_filter: str = "") -> dict[str, Any]
     volumes={"/mnt/ner-output": output_volume, "/root/.cache/huggingface": qwen_cache_volume},
     timeout=60 * 60 * 12,
 )
-def run_qwen25(limit_sentences: int = 0, book_filter: str = "") -> dict[str, Any]:
+def run_qwen25(
+    run_id: str,
+    input_run_id: str,
+    limit_sentences: int = 0,
+    book_filter: str = "",
+) -> dict[str, Any]:
     os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
-    return run_model("qwen25", limit_sentences=limit_sentences, book_filter=book_filter)
+    return run_model(
+        "qwen25",
+        run_id=run_id,
+        input_run_id=input_run_id,
+        limit_sentences=limit_sentences,
+        book_filter=book_filter,
+    )
 
 
 @app.local_entrypoint()
-def main(limit_sentences: int = 0, book_filter: str = "", wait: bool = True) -> None:
+def main(
+    limit_sentences: int = 0,
+    book_filter: str = "",
+    wait: bool = True,
+    model_key: str = "all",
+) -> None:
+    functions = {
+        "ckip": run_ckip,
+        "hanlp": run_hanlp,
+        "qwen25": run_qwen25,
+    }
+    if model_key != "all" and model_key not in functions:
+        raise ValueError(f"model_key must be one of all, {', '.join(functions)}")
+    selected = functions.values() if model_key == "all" else [functions[model_key]]
     calls = [
-        run_ckip.spawn(limit_sentences=limit_sentences, book_filter=book_filter),
-        run_hanlp.spawn(limit_sentences=limit_sentences, book_filter=book_filter),
-        run_qwen25.spawn(limit_sentences=limit_sentences, book_filter=book_filter),
+        function.spawn(
+            run_id=RUN_ID,
+            input_run_id=INPUT_ROOT.parent.name,
+            limit_sentences=limit_sentences,
+            book_filter=book_filter,
+        )
+        for function in selected
     ]
     for call in calls:
         print(f"started Modal call {call.object_id}", flush=True)

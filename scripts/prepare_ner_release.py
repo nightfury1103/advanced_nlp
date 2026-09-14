@@ -234,7 +234,8 @@ def write_review_samples(
 
 def data_card(summary: dict[str, Any]) -> str:
     labels = ", ".join(f"`{label}` ({count})" for label, count in summary["release_label_counts"].items())
-    return f"""# NER release candidate: books 1–10 v001
+    book_scope = ", ".join(summary["book_ids"])
+    return f"""# NER release candidate: {book_scope}
 
 ## Status
 
@@ -242,7 +243,7 @@ This is an automatically generated **release candidate**, not a human-validated 
 
 ## Scope
 
-- Input: {summary['sentence_count']:,} agreed OCR sentence records from the books 1–10 sentence-vote run.
+- Input: {summary['sentence_count']:,} agreed OCR sentence records from {book_scope}.
 - NER ensemble: CKIP BERT, HanLP MSRA ELECTRA, and Qwen2.5-14B-Instruct-AWQ.
 - Acceptance rule: exact span and canonical label agreement from at least two of three models.
 - Public release schema: {', '.join(f'`{label}`' for label in RELEASE_LABELS)}.
@@ -310,6 +311,7 @@ def prepare_release(
         "source_model_run_root": str(model_run_root),
         "source_voted_run": str(voted_dir),
         "sentence_count": sentence_count,
+        "book_ids": sorted(releases, key=book_sort_key),
         "release_entity_count": release_entity_count,
         "release_label_counts": dict(label_counts),
         "excluded_entity_count": excluded_entity_count,
